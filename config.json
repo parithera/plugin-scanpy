@@ -3,20 +3,14 @@
   "version": "v0.0.0-alpha",
   "image_name": "parithera/plugin-scanpy",
   "image_version": "0.0.0",
-  "depends_on": [],
-  "description": "A plugin to run an R script",
+  "depends_on": ["star"],
+  "description": "A plugin to run preprocess scripts",
   "config": {
-    "whitelist": {
-      "name": "whitelist",
+    "file_type": {
+      "name": "file_type",
       "type": "string",
-      "description": "Name of the whitelist you want to use",
+      "description": "h5 of fastq",
       "required": true
-    },
-    "genome": {
-      "name": "genome",
-      "type": "string",
-      "description": "Name of the genome",
-      "required": false
     }
   }
 }
