@@ -1,4 +1,4 @@
-module github.com/parithera/plugin-star
+module github.com/parithera/plugin-scanpy
 
 go 1.22.0
 
