@@ -32,10 +32,10 @@ if __name__=='__main__':
         ["n_genes_by_counts", "total_counts", "pct_counts_mt"],
         jitter=0.4,
         multi_panel=True,
-        save=True
+        save=".png"
     )
 
-    sc.pl.scatter(adata, "total_counts", "n_genes_by_counts", color="pct_counts_mt", save=True)
+    sc.pl.scatter(adata, "total_counts", "n_genes_by_counts", color="pct_counts_mt", save=".png")
 
     sc.pp.filter_cells(adata, min_genes=100)
     sc.pp.filter_genes(adata, min_cells=3)
@@ -50,18 +50,18 @@ if __name__=='__main__':
 
     sc.pp.highly_variable_genes(adata, n_top_genes=2000, batch_key="sample")
     sc.pl.highly_variable_genes(adata,
-        save=True)
+        save=".png")
 
     sc.tl.pca(adata)
     sc.pl.pca_variance_ratio(adata, n_pcs=50, log=True,
-        save=True)
+        save=".png")
     sc.pl.pca(
         adata,
         color=["sample", "sample", "pct_counts_mt", "pct_counts_mt"],
         dimensions=[(0, 1), (2, 3), (0, 1), (2, 3)],
         ncols=2,
         size=2,
-        save=True
+        save=".png"
     )
 
     sc.pp.neighbors(adata)
@@ -71,13 +71,13 @@ if __name__=='__main__':
         color="sample",
         # Setting a smaller point size to get prevent overlap
         size=2,
-        save=True
+        save=".png"
     )
 
     # Using the igraph implementation and a fixed number of iterations can be significantly faster, especially for larger datasets
     sc.tl.leiden(adata, flavor="igraph", n_iterations=2)
     sc.pl.umap(adata, color=["leiden"],
-        save=True)
+        save="_leiden.png")
 
     sc.pl.umap(
         adata,
@@ -85,7 +85,7 @@ if __name__=='__main__':
         # increase horizontal space between panels
         wspace=0.5,
         size=3,
-        save=True
+        save="_leiden2.png"
     )
 
     sc.pl.umap(
@@ -93,5 +93,5 @@ if __name__=='__main__':
         color=["leiden", "log1p_total_counts", "pct_counts_mt", "log1p_n_genes_by_counts"],
         wspace=0.5,
         ncols=2,
-        save=True
+        save="_leiden3.png"
     )
