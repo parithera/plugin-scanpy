@@ -19,16 +19,7 @@ import (
 // Start is a function that analyzes the source code directory and generates a software bill of materials (SBOM) output.
 // It returns an sbomTypes.Output struct containing the analysis results.
 func Start(sourceCodeDir string, codeclarityDB *bun.DB) types.Output {
-
-	// r_config, ok := analysis.Config["fastqc"].(map[string]interface{})
-	// if !ok {
-	// 	panic("Failed to fetch analysis config")
-	// }
-
-	// projectId := r_config["project"].(string)
-
 	return ExecuteScript(sourceCodeDir)
-
 }
 
 func ExecuteScript(sourceCodeDir string) types.Output {

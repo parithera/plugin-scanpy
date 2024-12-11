@@ -2,6 +2,7 @@
 import scanpy as sc
 import anndata as ad
 import sys
+import hdf5plugin
 
 if __name__=='__main__':
     folder = sys.argv[1]
@@ -94,4 +95,10 @@ if __name__=='__main__':
         wspace=0.5,
         ncols=2,
         save="_leiden3.png"
+    )
+
+    adata.write_h5ad(
+        folder.replace("STAR/outSolo.out/Gene/filtered", "scanpy/out.h5"),
+        compression=hdf5plugin.FILTERS["zstd"],
+        compression_opts=hdf5plugin.Zstd(clevel=5).filter_options
     )
