@@ -14,6 +14,7 @@ help: ## Outputs this help screen
 build-prod: ## Builds the prod Docker images
 	@docker build \
 	-f .cloud/docker/Dockerfile \
+	--platform linux/amd64 \
 	--target plugin \
 	--build-arg PLUGINNAME=$(NAME) \
 	--tag $(REPOSITORY):latest \
