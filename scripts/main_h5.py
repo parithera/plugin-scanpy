@@ -5,11 +5,11 @@ import sys
 import hdf5plugin
 
 if __name__=='__main__':
-    folder = sys.argv[1]
+    file = sys.argv[1]
 
     adatas = {}
     # Load the data
-    sample_adata = sc.read_10x_mtx(folder, var_names='gene_symbols', cache=True)
+    sample_adata = sc.read_10x_h5(file)
     sample_adata.var_names_make_unique()
     adatas["sample"] = sample_adata
     
@@ -27,7 +27,7 @@ if __name__=='__main__':
     sc.pp.calculate_qc_metrics(
         adata, qc_vars=["mt", "ribo", "hb"], inplace=True, log1p=True
     )
-    sc.settings.figdir = folder.replace("STAR/outSolo.out/Gene/filtered", "scanpy")
+    sc.settings.figdir = file.replace("data.h5", "scanpy")
     sc.pl.violin(
         adata,
         ["n_genes_by_counts", "total_counts", "pct_counts_mt"],
@@ -98,7 +98,7 @@ if __name__=='__main__':
     )
 
     adata.write_h5ad(
-        folder.replace("STAR/outSolo.out/Gene/filtered", "scanpy/out.h5"),
+        file.replace("data.h5", "scanpy/out.h5"),
         compression=hdf5plugin.FILTERS["zstd"],
         compression_opts=hdf5plugin.Zstd(clevel=5).filter_options
     )

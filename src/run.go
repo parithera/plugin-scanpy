@@ -30,15 +30,26 @@ func ExecuteScript(sourceCodeDir string) types.Output {
 		log.Fatal(err)
 	}
 
-	if len(files) == 0 {
+	h5_files, err := filepath.Glob(sourceCodeDir + "/*.h5")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if len(files) == 0 && len(h5_files) == 0 {
 		return generate_output(start, "no fastq file", codeclarity.SUCCESS, []exceptionManager.Error{})
 	}
+
 	outputPath := path.Join(sourceCodeDir, "scanpy")
 	os.MkdirAll(outputPath, os.ModePerm)
 
 	starPath := path.Join(sourceCodeDir, "STAR", "outSolo.out", "Gene", "filtered")
-
 	args := []string{"scripts/main.py", starPath}
+
+	// If there is no fastq then it means there is an h5
+	if len(files) == 0 {
+		starPath = path.Join(sourceCodeDir, "data.h5")
+		args = []string{"scripts/main_h5.py", starPath}
+	}
 
 	// Run Rscript in sourceCodeDir
 	cmd := exec.Command("python3", args...)
