@@ -3,16 +3,26 @@ import scanpy as sc
 import anndata as ad
 import sys
 import hdf5plugin
+import json
 
 if __name__=='__main__':
     folder = sys.argv[1]
 
-    adatas = {}
-    # Load the data
-    sample_adata = sc.read_10x_mtx(folder, var_names='gene_symbols', cache=True)
-    sample_adata.var_names_make_unique()
-    adatas["sample"] = sample_adata
+    groups_file_path = folder.replace("STAR/outSolo.out/Gene/filtered", "groups.json")
     
+    groups_data = []
+    with open(groups_file_path) as f:
+        groups_data = json.load(f)
+
+    adatas = {}
+    for group in groups_data:
+        # print(group["name"])
+        sample_folder = folder.replace("outSolo.out", group["name"]+"Solo.out")
+        sample_adata = sc.read_10x_mtx(sample_folder, var_names='gene_symbols', cache=True)
+        sample_adata.var_names_make_unique()
+        adatas[group["name"]] = sample_adata
+
+    # Load the data
     adata = ad.concat(adatas, label="sample")
     adata.obs_names_make_unique()
     print(adata.obs["sample"].value_counts())

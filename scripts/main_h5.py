@@ -3,16 +3,24 @@ import scanpy as sc
 import anndata as ad
 import sys
 import hdf5plugin
+import json
 
 if __name__=='__main__':
     file = sys.argv[1]
 
-    adatas = {}
-    # Load the data
-    sample_adata = sc.read_10x_h5(file)
-    sample_adata.var_names_make_unique()
-    adatas["sample"] = sample_adata
+    groups_file_path = file.replace("data.h5", "groups.json")
     
+    groups_data = []
+    with open(groups_file_path) as f:
+        groups_data = json.load(f)
+
+    adatas = {}
+    for group in groups_data:
+        sample_adata = sc.read_10x_h5(group["files"][0])
+        sample_adata.var_names_make_unique()
+        adatas[group["name"]] = sample_adata
+
+    # Load the data
     adata = ad.concat(adatas, label="sample")
     adata.obs_names_make_unique()
     print(adata.obs["sample"].value_counts())
