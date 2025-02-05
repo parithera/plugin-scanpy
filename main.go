@@ -76,7 +76,6 @@ func main() {
 // - analysis_document: Analysis document containing the analysis configuration.
 // It returns a map[string]any containing the result of the analysis, the analysis status, and an error if any.
 func startAnalysis(args Arguments, dispatcherMessage types_amqp.DispatcherPluginMessage, config plugin_db.Plugin, analysis_document codeclarity.Analysis) (map[string]any, codeclarity.AnalysisStatus, error) {
-
 	// Get analysis config
 	messageData := analysis_document.Config[config.Name].(map[string]any)
 
@@ -86,10 +85,10 @@ func startAnalysis(args Arguments, dispatcherMessage types_amqp.DispatcherPlugin
 	// Destination folder
 	// destination := fmt.Sprintf("%s/%s/%s", path, organization, analysis.Commit)
 	// Prepare the arguments for the plugin
-	project := filepath.Join(path, messageData["user"].(string), messageData["project"].(string))
+	sample := filepath.Join(path, dispatcherMessage.OrganizationId.String(), "samples", messageData["sample"].(string))
 
 	// Start the plugin
-	rOutput := plugin.Start(project, args.codeclarity)
+	rOutput := plugin.Start(sample, args.codeclarity)
 
 	result := codeclarity.Result{
 		Result:     rOutput,
