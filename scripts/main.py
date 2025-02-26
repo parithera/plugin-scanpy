@@ -37,7 +37,11 @@ if __name__=='__main__':
     sc.pp.calculate_qc_metrics(
         adata, qc_vars=["mt", "ribo", "hb"], inplace=True, log1p=True
     )
-    sc.settings.figdir = folder.replace("STAR/outSolo.out/Gene/filtered", "scanpy")
+    output_folder = folder.replace("STAR/outSolo.out/Gene/filtered", "scanpy")
+    sc.settings.figdir = output_folder
+    
+
+    # VIOLIN PLOT
     sc.pl.violin(
         adata,
         ["n_genes_by_counts", "total_counts", "pct_counts_mt"],
@@ -45,8 +49,19 @@ if __name__=='__main__':
         multi_panel=True,
         save=".png"
     )
-
+    
+    # SCATTER PLOT
     sc.pl.scatter(adata, "total_counts", "n_genes_by_counts", color="pct_counts_mt", save=".png")
+    
+    # Save data used for those two plot to a JSON file
+    violin_data = {
+        'n_genes_by_counts': adata.obs['n_genes_by_counts'].tolist(),
+        'total_counts': adata.obs['total_counts'].tolist(),
+        'pct_counts_mt': adata.obs['pct_counts_mt'].tolist(),
+        'type': 'violin'
+    }
+    with open(output_folder+'/violin_and_scatter_plot_data.json', 'w') as f:
+        json.dump(violin_data, f)
 
     sc.pp.filter_cells(adata, min_genes=100)
     sc.pp.filter_genes(adata, min_cells=3)
@@ -59,13 +74,28 @@ if __name__=='__main__':
     # Logarithmize the data
     sc.pp.log1p(adata)
 
+    # HIGHLY VARIABLE GENES
     sc.pp.highly_variable_genes(adata, n_top_genes=2000, batch_key="sample")
-    sc.pl.highly_variable_genes(adata,
-        save=".png")
+    sc.pl.highly_variable_genes(adata, save=".png")
+    highly_variable_genes_data = {
+        'highly_variable': adata.var['highly_variable'].tolist(),
+        'means': adata.var['means'].tolist(),
+        'dispersions': adata.var['dispersions'].tolist(),
+        # 'dispersion_norm': adata.var['dispersion_norm'].tolist()
+    }
+    with open(output_folder+'/highly_variable_genes_data.json', 'w') as f:
+        json.dump(highly_variable_genes_data, f)
 
+    # PCA
     sc.tl.pca(adata)
     sc.pl.pca_variance_ratio(adata, n_pcs=50, log=True,
         save=".png")
+    pca_variance_ratio_data = {
+        'pca_variance_ratio': adata.uns['pca']['variance_ratio'].tolist(),
+    }
+    with open(output_folder+'/pca_variance_ratio_data.json', 'w') as f:
+        json.dump(pca_variance_ratio_data, f)
+
     sc.pl.pca(
         adata,
         color=["sample", "sample", "pct_counts_mt", "pct_counts_mt"],
@@ -106,6 +136,39 @@ if __name__=='__main__':
         ncols=2,
         save="_leiden3.png"
     )
+
+    # Extract UMAP coordinates
+    umap_data = adata.obsm['X_umap']
+
+    # Create a list of dictionaries for each cell, containing its UMAP coordinates and any other metadata you want to include
+    cells = []
+
+    if 'leiden' in adata.obs:  # Example of including cluster labels (assuming leiden clustering was done)
+        clusters = adata.obs['leiden'].astype(str).tolist()
+    else:
+        clusters = ['None'] * len(umap_data)
+
+    samples = adata.obs['sample'].astype(str).tolist()
+
+    for i, (x, y) in enumerate(umap_data):
+        cell_info = {
+            'id': i,
+            'x': float(x),
+            'y': float(y),
+            'cluster': clusters[i],  # Add any other metadata you need here
+            'sample': samples[i]     # Extract the sample from which the data is taken
+        }
+        cells.append(cell_info)
+
+    output = {
+        "cells": cells,
+        "type": "umap"
+    }
+
+    # Save the UMAP data as a JSON file
+    with open(output_folder+'/umap_data.json', 'w') as f:
+        json.dump(output, f)
+
 
     adata.write_h5ad(
         folder.replace("STAR/outSolo.out/Gene/filtered", "scanpy/out.h5"),
