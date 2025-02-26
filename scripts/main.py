@@ -91,9 +91,7 @@ if __name__=='__main__':
     sc.pl.pca_variance_ratio(adata, n_pcs=50, log=True,
         save=".png")
     pca_variance_ratio_data = {
-        'pca_variance': adata.uns['pca']['variance'].tolist(),
         'pca_variance_ratio': adata.uns['pca']['variance_ratio'].tolist(),
-        'n_pcs': 50
     }
     with open(output_folder+'/pca_variance_ratio_data.json', 'w') as f:
         json.dump(pca_variance_ratio_data, f)
@@ -106,16 +104,6 @@ if __name__=='__main__':
         size=2,
         save=".png"
     )
-    pca_plot_data = {
-        'sample': adata.obs['sample'].tolist(),
-        'pct_counts_mt': adata.obs['pct_counts_mt'].tolist(),
-        'pca_0': adata.obsm['X_pca'][:, 0].tolist(),
-        'pca_1': adata.obsm['X_pca'][:, 1].tolist(),
-        'pca_2': adata.obsm['X_pca'][:, 2].tolist(),
-        'pca_3': adata.obsm['X_pca'][:, 3].tolist()
-    }
-    with open(output_folder+'/pca_plot_data.json', 'w') as f:
-        json.dump(pca_plot_data, f)
 
     sc.pp.neighbors(adata)
     sc.tl.umap(adata)
@@ -148,6 +136,39 @@ if __name__=='__main__':
         ncols=2,
         save="_leiden3.png"
     )
+
+    # Extract UMAP coordinates
+    umap_data = adata.obsm['X_umap']
+
+    # Create a list of dictionaries for each cell, containing its UMAP coordinates and any other metadata you want to include
+    cells = []
+
+    if 'leiden' in adata.obs:  # Example of including cluster labels (assuming leiden clustering was done)
+        clusters = adata.obs['leiden'].astype(str).tolist()
+    else:
+        clusters = ['None'] * len(umap_data)
+
+    samples = adata.obs['sample'].astype(str).tolist()
+
+    for i, (x, y) in enumerate(umap_data):
+        cell_info = {
+            'id': i,
+            'x': float(x),
+            'y': float(y),
+            'cluster': clusters[i],  # Add any other metadata you need here
+            'sample': samples[i]     # Extract the sample from which the data is taken
+        }
+        cells.append(cell_info)
+
+    output = {
+        "cells": cells,
+        "type": "umap"
+    }
+
+    # Save the UMAP data as a JSON file
+    with open(output_folder+'/umap_data.json', 'w') as f:
+        json.dump(output, f)
+
 
     adata.write_h5ad(
         folder.replace("STAR/outSolo.out/Gene/filtered", "scanpy/out.h5"),
