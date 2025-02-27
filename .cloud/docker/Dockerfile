@@ -31,7 +31,6 @@ ENV PLUGINNAME ${PLUGINNAME}
 WORKDIR /
 RUN apt update
 RUN apt install -y git python3 python3-pip
-RUN pip3 install --no-cache --break-system-packages anndata h5py hdf5plugin igraph pandas plotly PyQt6 scipy scanpy scikit-image
 
 WORKDIR /codeclarity/${KIND}/${PLUGINNAME}
 ADD .cloud/docker/config/* /root
