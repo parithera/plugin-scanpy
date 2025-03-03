@@ -161,7 +161,7 @@ if __name__=='__main__':
         cells.append(cell_info)
 
     output = {
-        "cells": cells,
+        "data": cells,
         "type": "umap"
     }
 
