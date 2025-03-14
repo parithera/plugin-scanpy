@@ -1,6 +1,5 @@
 services:
   plugin-scanpy:
-    platform: linux/amd64
     build:
       context: ../../backend
       dockerfile: plugins/scanpy/.cloud/docker/Dockerfile
