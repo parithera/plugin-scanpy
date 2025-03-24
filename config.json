@@ -1,6 +1,6 @@
 {
   "name": "scanpy",
-  "version": "v0.0.0-alpha",
+  "version": "v0.0.1-alpha",
   "image_name": "parithera/plugin-scanpy",
   "depends_on": ["star"],
   "description": "A plugin to run preprocess scripts",
